@@ -1,0 +1,324 @@
+{
+  "id" : "customers",
+  "metainfo" : {
+    "label" : "customers",
+    "autoLayout" : true,
+    "staleState" : "none",
+    "sourceSuggestions" : {
+      "sources" : [ ]
+    },
+    "graphConfig" : {
+      "userDefinedConfig" : {
+        "vars" : { }
+      }
+    },
+    "version" : 3
+  },
+  "processes" : {
+    "customer_orders##cecYx0wr" : {
+      "id" : "customer_orders##cecYx0wr",
+      "component" : "Aggregate",
+      "metadata" : {
+        "label" : "customer_orders",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "aggregate" : [ {
+          "expression" : {
+            "expression" : "customer_id"
+          }
+        }, {
+          "expression" : {
+            "expression" : "min(order_date)"
+          },
+          "alias" : "first_order"
+        }, {
+          "expression" : {
+            "expression" : "max(order_date)"
+          },
+          "alias" : "most_recent_order"
+        }, {
+          "expression" : {
+            "expression" : "count(order_id)"
+          },
+          "alias" : "number_of_orders"
+        } ],
+        "allowSelection" : true,
+        "condition" : {
+          "expression" : ""
+        },
+        "activeTab" : "aggregate",
+        "columnsSelector" : [ ],
+        "groupBy" : [ {
+          "expression" : {
+            "expression" : "customer_id"
+          }
+        } ]
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "Ev6aDwHS",
+          "slug" : "orders"
+        } ],
+        "outputs" : [ {
+          "id" : "ozsRW4n7",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "final##DMLgxoMA" : {
+      "id" : "final##DMLgxoMA",
+      "component" : "Join",
+      "metadata" : {
+        "label" : "final",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "conditions" : [ {
+          "alias" : "customer_orders",
+          "expression" : {
+            "expression" : "customers.customer_id = customer_orders.customer_id"
+          },
+          "joinType" : "LEFT"
+        }, {
+          "alias" : "customer_payments",
+          "expression" : {
+            "expression" : "customers.customer_id = customer_payments.customer_id"
+          },
+          "joinType" : "LEFT"
+        } ],
+        "expressions" : [ {
+          "expression" : {
+            "expression" : "customers.customer_id"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customers.first_name"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customers.last_name"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customer_orders.first_order"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customer_orders.most_recent_order"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customer_orders.number_of_orders"
+          }
+        }, {
+          "expression" : {
+            "expression" : "customer_payments.total_amount"
+          },
+          "alias" : "customer_lifetime_value"
+        } ],
+        "activeTab" : "conditions",
+        "columnsSelector" : [ ],
+        "headAlias" : "customers"
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "dKDu2TNL",
+          "slug" : "customers"
+        }, {
+          "id" : "KNPkPRKB",
+          "slug" : "customer_orders"
+        }, {
+          "id" : "QknrBR4x",
+          "slug" : "customer_payments"
+        } ],
+        "outputs" : [ {
+          "id" : "xZkPDhU6",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "orders##By7nR7aC" : {
+      "id" : "orders##By7nR7aC",
+      "component" : "Model",
+      "metadata" : {
+        "label" : "orders",
+        "phase" : 0
+      },
+      "properties" : {
+        "table" : {
+          "name" : "stg_orders",
+          "sourceType" : "Model"
+        }
+      },
+      "ports" : {
+        "inputs" : [ ],
+        "outputs" : [ {
+          "id" : "SaKvXaSz",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "customers##vIdr2hH4" : {
+      "id" : "customers##vIdr2hH4",
+      "component" : "Model",
+      "metadata" : {
+        "label" : "customers",
+        "phase" : 0
+      },
+      "properties" : {
+        "table" : {
+          "name" : "stg_customers",
+          "sourceType" : "Model"
+        }
+      },
+      "ports" : {
+        "inputs" : [ ],
+        "outputs" : [ {
+          "id" : "Yp9caIEC",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "customers##leKlDGQO" : {
+      "id" : "customers##leKlDGQO",
+      "component" : "TargetModel",
+      "metadata" : {
+        "label" : "customers",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "customQueryDisabled" : true,
+        "customQuery" : false,
+        "incrementalEditorDisabled" : true,
+        "query" : "SELECT * \n\nFROM final\n",
+        "incrementalKey" : false,
+        "incremental" : {
+          "expression" : "true"
+        }
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "NO0bM05P",
+          "slug" : "final"
+        } ],
+        "outputs" : [ {
+          "id" : "eOh6SjVn",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "customer_payments##SjeYEiGd" : {
+      "id" : "customer_payments##SjeYEiGd",
+      "component" : "SQLStatement",
+      "metadata" : {
+        "label" : "customer_payments",
+        "phase" : 0,
+        "macroDependencies" : [ ]
+      },
+      "properties" : {
+        "fileTabs" : [ {
+          "path" : "out",
+          "id" : "out",
+          "language" : "sql",
+          "content" : "SELECT \n  orders.customer_id,\n  sum(amount) AS total_amount\n\nFROM payments\nLEFT JOIN orders\n   ON payments.order_id = orders.order_id\n\nGROUP BY orders.customer_id\n"
+        } ]
+      },
+      "ports" : {
+        "inputs" : [ {
+          "id" : "uwVFbK0e",
+          "slug" : "payments"
+        }, {
+          "id" : "uS2pcprG",
+          "slug" : "orders"
+        } ],
+        "outputs" : [ {
+          "id" : "ZS9zFXYL",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    },
+    "payments##LRKvCss1" : {
+      "id" : "payments##LRKvCss1",
+      "component" : "Model",
+      "metadata" : {
+        "label" : "payments",
+        "phase" : 0
+      },
+      "properties" : {
+        "table" : {
+          "name" : "stg_payments",
+          "sourceType" : "Model"
+        }
+      },
+      "ports" : {
+        "inputs" : [ ],
+        "outputs" : [ {
+          "id" : "vfQTu0nZ",
+          "slug" : "out"
+        } ],
+        "isCustomOutputSchema" : false,
+        "autoUpdateOnRun" : false
+      }
+    }
+  },
+  "connections" : [ {
+    "id" : "FibTP5pf",
+    "source" : "orders##By7nR7aC",
+    "sourcePort" : "SaKvXaSz",
+    "target" : "customer_orders##cecYx0wr",
+    "targetPort" : "Ev6aDwHS"
+  }, {
+    "id" : "g7QaEbH9",
+    "source" : "payments##LRKvCss1",
+    "sourcePort" : "vfQTu0nZ",
+    "target" : "customer_payments##SjeYEiGd",
+    "targetPort" : "uwVFbK0e"
+  }, {
+    "id" : "bkqOkw54",
+    "source" : "orders##By7nR7aC",
+    "sourcePort" : "SaKvXaSz",
+    "target" : "customer_payments##SjeYEiGd",
+    "targetPort" : "uS2pcprG"
+  }, {
+    "id" : "C9VnD1ef",
+    "source" : "customers##vIdr2hH4",
+    "sourcePort" : "Yp9caIEC",
+    "target" : "final##DMLgxoMA",
+    "targetPort" : "dKDu2TNL"
+  }, {
+    "id" : "d3VV0AAV",
+    "source" : "customer_orders##cecYx0wr",
+    "sourcePort" : "ozsRW4n7",
+    "target" : "final##DMLgxoMA",
+    "targetPort" : "KNPkPRKB"
+  }, {
+    "id" : "YO5Bac0a",
+    "source" : "customer_payments##SjeYEiGd",
+    "sourcePort" : "ZS9zFXYL",
+    "target" : "final##DMLgxoMA",
+    "targetPort" : "QknrBR4x"
+  }, {
+    "id" : "mhTGwdwO",
+    "source" : "final##DMLgxoMA",
+    "sourcePort" : "xZkPDhU6",
+    "target" : "customers##leKlDGQO",
+    "targetPort" : "NO0bM05P"
+  } ],
+  "component" : "Model"
+}
